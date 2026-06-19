@@ -1,0 +1,12 @@
+{
+    "manifest_version":3,
+    "version":"1",
+    "name":"New Tab",
+    "description":"New Tab",    
+    "chrome_url_overrides":{
+        "New Tab":"index.html"  
+    },
+    "icons":{
+        "2":"Shreyas.jpg"
+    }
+}
