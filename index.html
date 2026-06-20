@@ -4,1081 +4,283 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Browser Home</title>
+
+    <!-- External Dependencies -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
 
-        :root {
-            --primary-color: #3b82f6;
-            --secondary-color: #8b5cf6;
-            --accent-color: #10b981;
-            --dark-bg: #0f172a;
-            --darker-bg: #0a0f1e;
-            --card-bg: #1e293b;
-            --text-primary: #f1f5f9;
-            --text-secondary: #94a3b8;
-            --border-color: #334155;
-            --hover-color: #3b82f6;
-            --transition-speed: 0.3s;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, var(--darker-bg) 0%, var(--dark-bg) 100%);
-            color: var(--text-primary);
-            min-height: 100vh;
-            padding: 20px;
-            overflow-x: hidden;
-        }
-
-        .container {
-            display: grid;
-            grid-template-columns: 1fr 2fr 1fr;
-            gap: 30px;
-            max-width: 1800px;
-            margin: 0 auto;
-            min-height: calc(100vh - 40px);
-        }
-
-        /* Header */
-        .header {
-            grid-column: 1 / -1;
-            
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            padding: 20px;
-            background: var(--card-bg);
-            border-radius: 15px;
-            box-shadow: var(--shadow);
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .logo h1 {
-            font-size: 2.2rem;
-            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-
-        .logo-icon {
-            font-size: 2.5rem;
-            color: var(--primary-color);
-        }
-
-        .date-time {
-            color: var(--text-secondary);
-            font-size: 1.1rem;
-        }
-
-        /* Left Section - Tools */
-        .left-section {
-            background: var(--card-bg);
-            border-radius: 15px;
-            padding: 25px;
-            border: 1px solid var(--border-color);
-            box-shadow: var(--shadow);
-        }
-
-        .section-title {
-            font-size: 1.6rem;
-            margin-bottom: 25px;
-            color: var(--accent-color);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid var(--border-color);
-        }
-
-        .section-title i {
-            font-size: 1.4rem;
-        }
-
-        .tools-container {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-        }
-
-        .tool-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-            background: rgba(30, 41, 59, 0.7);
-            border-radius: 12px;
-            text-decoration: none;
-            color: var(--text-primary);
-            transition: all var(--transition-speed) ease;
-            border: 1px solid transparent;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .tool-item:hover {
-            transform: translateY(-5px);
-            border-color: var(--primary-color);
-            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.2);
-        }
-
-        .tool-icon {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 15px;
-            font-size: 2rem;
-            transition: all var(--transition-speed) ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .tool-item:hover .tool-icon {
-            transform: scale(1.15);
-        }
-
-        .tool-name {
-            font-weight: 500;
-            font-size: 1rem;
-            text-align: center;
-            transition: all var(--transition-speed) ease;
-        }
-
-        .tool-item:hover .tool-name {
-            color: var(--primary-color);
-        }
-
-        /* Center Section */
-        .center-section {
-          height: fit-content;
-            background: var(--card-bg);
-            border-radius: 15px;
-            padding: 25px;
-            border: 1px solid var(--border-color);
-            box-shadow: var(--shadow);
-        }
-
-        /* Animation Section */
-        .animation-section {
-            margin-bottom: 40px;
-            text-align: center;
-        }
-
-        .animation-title {
-            font-size: 1.6rem;
-            color: var(--accent-color);
-            margin-bottom: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-        }
-
-        .animation-container {
-            position: relative;
-            width: 100%;
-            height: 300px;
-            background: rgba(15, 23, 42, 0.5);
-            border-radius: 15px;
-            overflow: hidden;
-            border: 2px solid var(--border-color);
-        }
-
-        .growing-circle {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 120px;
-            height: 120px;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            border-radius: 50%;
-            animation: grow 4s ease-in-out infinite;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3rem;
-            color: white;
-        }
-
-        @keyframes grow {
-            0%, 100% {
-                width: 120px;
-                height: 120px;
-                box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
-            }
-            50% {
-                width: 150px;
-                height: 150px;
-                box-shadow: 0 0 40px rgba(59, 130, 246, 0.8);
-            }
-        }
-
-        .floating-icons {
-            position: absolute;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            color: white;
-            animation: float 6s ease-in-out infinite;
-        }
-
-        .floating-icons:nth-child(1) {
-            top: 20%;
-            left: 20%;
-            background: linear-gradient(135deg, #ef4444, #f97316);
-            animation-delay: 0s;
-        }
-
-        .floating-icons:nth-child(2) {
-            top: 30%;
-            right: 25%;
-            background: linear-gradient(135deg, #10b981, #059669);
-            animation-delay: 1s;
-        }
-
-        .floating-icons:nth-child(3) {
-            bottom: 25%;
-            left: 15%;
-            background: linear-gradient(135deg, #f59e0b, #fbbf24);
-            animation-delay: 2s;
-        }
-
-        .floating-icons:nth-child(4) {
-            bottom: 20%;
-            right: 20%;
-            background: linear-gradient(135deg, #8b5cf6, #a78bfa);
-            animation-delay: 3s;
-        }
-
-        @keyframes float {
-            0%, 100% {
-                transform: translateY(0) rotate(0deg);
-            }
-            50% {
-                transform: translateY(-20px) rotate(180deg);
-            }
-        }
-
-        /* Add Icon Form */
-        .add-icon-form {
-            background: rgba(15, 23, 42, 0.5);
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 30px;
-            border: 2px dashed var(--border-color);
-        }
-
-        .form-title {
-            font-size: 1.4rem;
-            color: var(--accent-color);
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 12px 15px;
-            background: var(--dark-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            color: var(--text-primary);
-            font-family: 'Inter', sans-serif;
-            font-size: 1rem;
-            transition: all var(--transition-speed) ease;
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-
-        .file-upload {
-            position: relative;
-            display: inline-block;
-            width: 100%;
-        }
-
-        .file-input {
-            display: none;
-        }
-
-        .file-label {
-            display: block;
-            padding: 12px 15px;
-            background: var(--dark-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            color: var(--text-primary);
-            cursor: pointer;
-            text-align: center;
-            transition: all var(--transition-speed) ease;
-        }
-
-        .file-label:hover {
-            background: rgba(59, 130, 246, 0.1);
-            border-color: var(--primary-color);
-        }
-
-        .file-label i {
-            margin-right: 8px;
-        }
-
-        .form-buttons {
-            display: flex;
-            gap: 15px;
-            margin-top: 25px;
-        }
-
-        .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            font-family: 'Inter', sans-serif;
-            font-size: 1rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all var(--transition-speed) ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            flex: 1;
-        }
-
-        .btn-primary {
-            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
-        }
-
-        .btn-secondary {
-            background: var(--dark-bg);
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-        }
-
-        .btn-secondary:hover {
-            background: rgba(59, 130, 246, 0.1);
-            border-color: var(--primary-color);
-        }
-
-        /* Search Bar */
-        .search-section {
-            background: rgba(15, 23, 42, 0.5);
-            border-radius: 15px;
-            padding: 25px;
-            border: 2px solid var(--border-color);
-        }
-
-        .search-title {
-            font-size: 1.4rem;
-            color: var(--accent-color);
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .search-container {
-            display: flex;
-            align-items: center;
-            background: var(--dark-bg);
-            border-radius: 12px;
-            padding: 5px;
-            border: 1px solid var(--border-color);
-            transition: all var(--transition-speed) ease;
-        }
-
-        .search-container:focus-within {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-
-        .search-icon {
-            padding: 0 15px;
-            color: var(--text-secondary);
-            font-size: 1.2rem;
-        }
-
-        #search-input {
-            flex: 1;
-            padding: 15px;
-            background: transparent;
-            border: none;
-            color: var(--text-primary);
-            font-size: 1.1rem;
-            font-family: 'Inter', sans-serif;
-            outline: none;
-        }
-
-        #search-input::placeholder {
-            color: var(--text-secondary);
-        }
-
-        .clear-btn {
-            background: transparent;
-            border: none;
-            color: var(--text-secondary);
-            cursor: pointer;
-            padding: 0 15px;
-            font-size: 1.2rem;
-            transition: all var(--transition-speed) ease;
-        }
-
-        .clear-btn:hover {
-            color: #ef4444;
-        }
-
-        /* Right Section - AI Tools */
-        .right-section {
-            background: var(--card-bg);
-            border-radius: 15px;
-            padding: 25px;
-            border: 1px solid var(--border-color);
-            box-shadow: var(--shadow);
-        }
-
-        .ai-container {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-        }
-
-        .ai-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-            background: rgba(30, 41, 59, 0.7);
-            border-radius: 12px;
-            text-decoration: none;
-            color: var(--text-primary);
-            transition: all var(--transition-speed) ease;
-            border: 1px solid transparent;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .ai-item:hover {
-            transform: translateY(-5px);
-            border-color: var(--accent-color);
-            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2);
-        }
-
-        .ai-icon {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 15px;
-            font-size: 2rem;
-            transition: all var(--transition-speed) ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .ai-item:hover .ai-icon {
-            transform: scale(1.15);
-        }
-
-        .ai-name {
-            font-weight: 500;
-            font-size: 1rem;
-            text-align: center;
-            transition: all var(--transition-speed) ease;
-        }
-
-        .ai-item:hover .ai-name {
-            color: var(--accent-color);
-        }
-
-        .ai-stats {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 1px solid var(--border-color);
-        }
-
-        .stat {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-        }
-
-        .stat-value {
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 2px;
-        }
-
-        .stat-label {
-            font-size: 0.8rem;
-        }
-
-        /* Footer */
-        .footer {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 20px;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            margin-top: 30px;
-            border-top: 1px solid var(--border-color);
-        }
-
-        /* Responsive Design */
-        @media (max-width: 1400px) {
-            .container {
-                grid-template-columns: 1fr 1fr;
-            }
-            
-            .center-section {
-                grid-column: 1 / -1;
-                order: 1;
-            }
-            
-            .left-section, .right-section {
-                order: 2;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-            
-            .left-section, .right-section, .center-section {
-                grid-column: 1 / -1;
-            }
-            
-            .tools-container, .ai-container {
-                grid-template-columns: repeat(3, 1fr);
-            }
-            
-            .animation-container {
-                height: 200px;
-            }
-            
-            .growing-circle {
-                width: 80px;
-                height: 80px;
-                font-size: 2rem;
-            }
-            
-            @keyframes grow {
-                0%, 100% {
-                    width: 80px;
-                    height: 80px;
-                }
-                50% {
-                    width: 100px;
-                    height: 100px;
-                }
-            }
-        }
-
-        @media (max-width: 480px) {
-            .tools-container, .ai-container {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .form-buttons {
-                flex-direction: column;
-            }
-            
-            .btn {
-                width: 100%;
-            }
-        }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 10px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: var(--dark-bg);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--primary-color);
-            border-radius: 5px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--secondary-color);
-        }
-    </style>
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+    <!-- ============================================ -->
+    <!-- MAIN CONTAINER                              -->
+    <!-- ============================================ -->
     <div class="container">
-        <!-- Header -->
-        <div class="header">
+
+        <!-- ============================================ -->
+        <!-- HEADER SECTION                              -->
+        <!-- ============================================ -->
+        <header class="header">
             <div class="logo">
                 <i class="fas fa-home logo-icon"></i>
                 <h1>Smart Browser Home</h1>
             </div>
-            <br>
-            <div class="date-time" id="dateTime"></div>
-        </div>
-
-        <!-- Left Section - Tools -->
-        <div class="left-section">
-            <h2 class="section-title">
-                <i class="fas fa-tools"></i> Tools
-            </h2>
-            <div class="tools-container" id="toolsContainer">
-                <!-- Tools will be added dynamically -->
+            <div class="header-controls">
+                <div class="date-time" id="dateTime"></div>
+                <div class="header-buttons">
+                    <button class="btn btn-add" id="addBtn" title="Add new shortcut (Ctrl+N)">
+                        <i class="fas fa-plus-circle"></i> Add
+                    </button>
+                    <button class="btn btn-edit" id="editBtn" title="Rearrange items (Ctrl+E)">
+                        <i class="fas fa-arrows-alt"></i> Edit Layout
+                    </button>
+                    <button class="btn btn-save" id="saveBtn" title="Save current layout">
+                        <i class="fas fa-save"></i> Save
+                    </button>
+                    <button class="btn btn-export" id="exportBtn" title="Export configuration">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                    <button class="btn btn-import" id="importBtn" title="Import configuration">
+                        <i class="fas fa-upload"></i> Import
+                    </button>
+                    <button class="btn btn-reset" id="resetBtn" title="Reset to defaults">
+                        <i class="fas fa-undo-alt"></i> Reset
+                    </button>
+                </div>
             </div>
-        </div>
+        </header>
 
-        <!-- Center Section -->
-        <div class="center-section">
-            <!-- Animation Section -->
+        <!-- ============================================ -->
+        <!-- LEFT SECTION - TOOLS                        -->
+        <!-- ============================================ -->
+        <section class="left-section" id="toolsSection">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-tools"></i> Tools
+                </h2>
+                <span class="item-count" id="toolsCount">0 items</span>
+            </div>
+            <div class="tools-container" id="toolsContainer" data-type="tools">
+                <!-- Tools rendered dynamically -->
+            </div>
+            <!-- Empty state message -->
+            <div class="empty-state" id="toolsEmptyState" style="display:none;">
+                <i class="fas fa-toolbox"></i>
+                <p>No tools yet. Click <strong>Add</strong> to create one.</p>
+            </div>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- CENTER SECTION - ANIMATION + SEARCH         -->
+        <!-- ============================================ -->
+        <section class="center-section">
+
+            <!-- Animation Display -->
             <div class="animation-section">
                 <h3 class="animation-title">
                     <i class="fas fa-expand-alt"></i> Growing Animations
                 </h3>
                 <div class="animation-container">
-                    <div class="growing-circle">
+                    <div class="growing-circle" id="growingCircle">
                         <i class="fas fa-star"></i>
                     </div>
-                    <div class="floating-icons">
+                    <div class="floating-icons floating-icon-1">
                         <i class="fas fa-rocket"></i>
                     </div>
-                    <div class="floating-icons">
+                    <div class="floating-icons floating-icon-2">
                         <i class="fas fa-meteor"></i>
                     </div>
-                    <div class="floating-icons">
+                    <div class="floating-icons floating-icon-3">
                         <i class="fas fa-sun"></i>
                     </div>
-                    <div class="floating-icons">
+                    <div class="floating-icons floating-icon-4">
                         <i class="fas fa-moon"></i>
                     </div>
+                    <!-- Particle overlay -->
+                    <div class="particles-container" id="particlesContainer"></div>
                 </div>
             </div>
-
 
             <!-- Search Bar -->
             <div class="search-section">
                 <h3 class="search-title">
                     <i class="fas fa-search"></i> Search
                 </h3>
-                <div class="search-container">
+                <div class="search-container" id="searchContainer">
                     <div class="search-icon">
                         <i class="fas fa-search"></i>
                     </div>
-                    <input type="text" id="searchInput" class="search-input" placeholder="Search here...">
-                    <button type="button" id="clearSearchBtn" class="clear-btn">
+                    <input
+                        type="text"
+                        id="searchInput"
+                        class="search-input"
+                        placeholder="Search the web with Bing... (Press / to focus)"
+                        autocomplete="off"
+                    >
+                    <button type="button" id="clearSearchBtn" class="clear-btn" title="Clear search (Esc)">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
-                <div class="form-buttons" style="margin-top: 20px;">
+                <div class="search-engines">
+                    <span class="engine-label">Search with:</span>
+                    <button class="engine-btn active" data-engine="bing">
+                        <i class="fab fa-microsoft"></i> Bing
+                    </button>
+                    <button class="engine-btn" data-engine="google">
+                        <i class="fab fa-google"></i> Google
+                    </button>
+                    <button class="engine-btn" data-engine="duckduckgo">
+                        <i class="fas fa-duck"></i> DuckDuckGo
+                    </button>
+                </div>
+                <div class="form-buttons">
                     <button type="button" id="searchBtn" class="btn btn-primary">
-                        <i class="fas fa-search"></i> Search with Bing
+                        <i class="fas fa-search"></i> Search Now
+                    </button>
+                    <button type="button" id="luckyBtn" class="btn btn-secondary">
+                        <i class="fas fa-dice"></i> I'm Feeling Lucky
                     </button>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <!-- Right Section - AI Tools -->
-        <div class="right-section">
-            <h2 class="section-title">
-                <i class="fas fa-robot"></i> AI
-            </h2>
-            <div class="ai-container" id="aiContainer">
-                <!-- AI Tools will be added dynamically -->
+        <!-- ============================================ -->
+        <!-- RIGHT SECTION - AI TOOLS                    -->
+        <!-- ============================================ -->
+        <section class="right-section" id="aiSection">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-robot"></i> AI
+                </h2>
+                <span class="item-count" id="aiCount">0 items</span>
             </div>
-        </div>
+            <div class="ai-container" id="aiContainer" data-type="ai">
+                <!-- AI tools rendered dynamically -->
+            </div>
+            <!-- Empty state message -->
+            <div class="empty-state" id="aiEmptyState" style="display:none;">
+                <i class="fas fa-robot"></i>
+                <p>No AI tools yet. Click <strong>Add</strong> to create one.</p>
+            </div>
+        </section>
 
-        <!-- Footer -->
-        <div class="footer">
-            <p>Smart Browser Home v1.0 • All icons are trademarks of their respective owners</p>
-            <p style="margin-top: 5px; font-size: 0.8rem;">
-                <i class="fas fa-sync-alt"></i> Updates automatically every 24 hours
+        <!-- ============================================ -->
+        <!-- FOOTER                                      -->
+        <!-- ============================================ -->
+        <footer class="footer">
+            <p>Smart Browser Home v2.0 • All icons are trademarks of their respective owners</p>
+            <p class="footer-hint">
+                <i class="fas fa-keyboard"></i> Shortcuts: <kbd>/</kbd> Search &nbsp;|&nbsp;
+                <kbd>Ctrl+E</kbd> Edit &nbsp;|&nbsp; <kbd>Ctrl+N</kbd> Add &nbsp;|&nbsp;
+                <kbd>Ctrl+S</kbd> Save &nbsp;|&nbsp; <kbd>Esc</kbd> Clear
             </p>
+        </footer>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- ADD ITEM MODAL                              -->
+    <!-- ============================================ -->
+    <div class="modal-overlay" id="addModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-plus-circle"></i> Add New Shortcut</h2>
+                <button class="modal-close" id="modalCloseBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="modalCategory">
+                        <i class="fas fa-layer-group"></i> Category
+                    </label>
+                    <select id="modalCategory" class="form-input">
+                        <option value="tools">Tools & Dev</option>
+                        <option value="ai">AI Hub</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="modalName">
+                        <i class="fas fa-tag"></i> Name <span class="required">*</span>
+                    </label>
+                    <input type="text" id="modalName" class="form-input"
+                           placeholder="e.g. GitHub, ChatGPT..." maxlength="50">
+                </div>
+                <div class="form-group">
+                    <label for="modalUrl">
+                        <i class="fas fa-link"></i> URL <span class="required">*</span>
+                    </label>
+                    <input type="url" id="modalUrl" class="form-input"
+                           placeholder="https://example.com">
+                </div>
+                <div class="form-group">
+                    <label for="modalIcon">
+                        <i class="fas fa-icons"></i> FontAwesome Icon Class
+                    </label>
+                    <input type="text" id="modalIcon" class="form-input"
+                           placeholder="e.g. fab fa-github" value="fas fa-link">
+                    <small class="form-hint">
+                        Browse icons at <a href="https://fontawesome.com/icons" target="_blank">fontawesome.com</a>
+                    </small>
+                </div>
+                <div class="form-group">
+                    <label for="modalColor">
+                        <i class="fas fa-palette"></i> Color
+                    </label>
+                    <div class="color-picker-row">
+                        <input type="color" id="modalColor" class="form-color" value="#3b82f6">
+                        <div class="color-presets" id="colorPresets">
+                            <span class="color-dot" data-color="#3B82F6" style="background:#3B82F6;"></span>
+                            <span class="color-dot" data-color="#8B5CF6" style="background:#8B5CF6;"></span>
+                            <span class="color-dot" data-color="#10B981" style="background:#10B981;"></span>
+                            <span class="color-dot" data-color="#F59E0B" style="background:#F59E0B;"></span>
+                            <span class="color-dot" data-color="#EF4444" style="background:#EF4444;"></span>
+                            <span class="color-dot" data-color="#EC4899" style="background:#EC4899;"></span>
+                            <span class="color-dot" data-color="#6366F1" style="background:#6366F1;"></span>
+                            <span class="color-dot" data-color="#14B8A6" style="background:#14B8A6;"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelModalBtn">Cancel</button>
+                <button class="btn btn-primary" id="submitModalBtn">
+                    <i class="fas fa-plus"></i> Add Shortcut
+                </button>
+            </div>
         </div>
     </div>
 
-    <script>
-        // Predefined tools and AI tools with colors
-        const predefinedTools = [
-            { name: "Gmail", url: "https://mail.google.com", color: "#EA4335", icon: "fas fa-envelope" },
-            { name: "YouTube", url: "https://youtube.com", color: "#FF0000", icon: "fab fa-youtube" },
-            {name: "Code With Harry",url: "https://www.codewithharry.com/courses/the-ultimate-job-ready-data-science-course/what-is-data-science--1744053602306",color: "#a435f0",icon: "fa-solid fa-circle-nodes"},
-            {name: "Udemy Courses",url: "https://www.udemy.com/home/my-courses/learning/",color: "#22c55e",icon: "fas fa-graduation-cap"},
-            { name: "Instagram", url: "https://instagram.com", color: "#E4405F", icon: "fab fa-instagram" },
-            { name: "LinkedIn", url: "https://linkedin.com", color: "#0A66C2", icon: "fab fa-linkedin" },
-	    {name: "Moodle", url: "https://elearn.apsit.edu.in/moodle/my/courses.php", color: "#FF42FE", icon: "fa-solid fa-book"},
-            { name: "GitHub", url: "https://github.com", color: "#181717", icon: "fab fa-github" },
-            { name: "Twitter (X)", url: "https://twitter.com", color: "#000000", icon: "fab fa-twitter" },
-            { name: "Excalidraw", url: "https://excalidraw.com", color: "#FF725E", icon: "fas fa-pen-fancy" },
-            { name: "Google Classroom", url: "https://classroom.google.com", color: "#0F9D58", icon: "fas fa-chalkboard-teacher" },
-            { name: "Notion", url: "https://notion.so", color: "#000000", icon: "fas fa-sticky-note" },
-            { name: "Discord", url: "https://discord.com", color: "#5865F2", icon: "fab fa-discord" },
-            { name: "Figma", url: "https://figma.com", color: "#F24E1E", icon: "fab fa-figma" },
-            { name: "Calendar", url: "https://calendar.google.com", color: "#4285F4", icon: "fas fa-calendar-alt" }
-        ];
+    <!-- ============================================ -->
+    <!-- DELETE CONFIRMATION MODAL                   -->
+    <!-- ============================================ -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal-content modal-sm">
+            <div class="modal-header">
+                <h2><i class="fas fa-trash-alt"></i> Confirm Delete</h2>
+                <button class="modal-close" id="deleteModalCloseBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete <strong id="deleteItemName"></strong>?</p>
+                <p class="text-warning">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelDeleteBtn">Cancel</button>
+                <button class="btn btn-danger" id="confirmDeleteBtn">
+                    <i class="fas fa-trash-alt"></i> Delete
+                </button>
+            </div>
+        </div>
+    </div>
 
-        const predefinedAI = [
-            { name: "ChatGPT", url: "https://chat.openai.com", color: "#10A37F", icon: "fas fa-comment-dots", stats: { usage: "0.00", cost: "0.00" } },
-            { name: "DeepSeek", url: "https://chat.deepseek.com", color: "#6366F1", icon: "fas fa-brain", stats: { usage: "0.00", cost: "0.00" } },
-            { name: "Gemini", url: "https://gemini.google.com", color: "#4285F4", icon: "fas fa-gem", stats: { usage: "0.00", cost: "0.00" } },
-            { name: "Copilot", url: "https://copilot.microsoft.com", color: "#0078D4", icon: "fas fa-robot", stats: { usage: "0.00", cost: "0.00" } },
-            { name: "Perplexity", url: "https://www.perplexity.ai", color: "#8B5CF6", icon: "fas fa-search", stats: { usage: "0.00", cost: "0.00" } },
-            { name: "Claude", url: "https://claude.ai", color: "#10B981", icon: "fas fa-user-robot", stats: { usage: "0.00", cost: "0.00" } },
-            { name: "Midjourney", url: "https://www.midjourney.com", color: "#000000", icon: "fas fa-palette", stats: { usage: "0.00", cost: "0.00" } },
-            { name: "HuggingFace", url: "https://huggingface.co", color: "#FFD21E", icon: "fas fa-hands-helping", stats: { usage: "0.00", cost: "0.00" } }
-        ];
+    <!-- ============================================ -->
+    <!-- TOAST NOTIFICATION                          -->
+    <!-- ============================================ -->
+    <div class="toast-container" id="toastContainer"></div>
 
-        // DOM Elements
-        const toolsContainer = document.getElementById('toolsContainer');
-        const aiContainer = document.getElementById('aiContainer');
-        const searchInput = document.getElementById('searchInput');
-        const searchBtn = document.getElementById('searchBtn');
-        const clearSearchBtn = document.getElementById('clearSearchBtn');
-        const iconName = document.getElementById('iconName');
-        const iconUrl = document.getElementById('iconUrl');
-        const iconUpload = document.getElementById('iconUpload');
-        const toolBtn = document.getElementById('toolBtn');
-        const aiBtn = document.getElementById('aiBtn');
-        const submitBtn = document.getElementById('submitBtn');
-        const clearFormBtn = document.getElementById('clearFormBtn');
-        const dateTime = document.getElementById('dateTime');
+    <!-- Hidden file input for import -->
+    <input type="file" id="importFileInput" accept=".json" style="display:none;">
 
-        // State
-        let selectedIconType = 'tool';
-        let uploadedIcon = null;
-
-        // Initialize page
-        function initPage() {
-            // Populate tools
-            predefinedTools.forEach(tool => {
-                createToolElement(tool);
-            });
-
-            // Populate AI tools
-            predefinedAI.forEach(ai => {
-                createAIElement(ai);
-            });
-
-            // Set up event listeners
-            setupEventListeners();
-            
-            // Update date and time
-            updateDateTime();
-            setInterval(updateDateTime, 1000);
-            
-            // Set initial button state
-            updateButtonState();
-            
-            // Focus search input
-            searchInput.focus();
-        }
-
-        // Create tool element
-        function createToolElement(tool) {
-            const toolElement = document.createElement('a');
-            toolElement.className = 'tool-item';
-            toolElement.href = tool.url;
-            toolElement.target = '_blank';
-            toolElement.title = tool.name;
-            
-            toolElement.innerHTML = `
-                <div class="tool-icon" style="background: linear-gradient(135deg, ${tool.color}, ${adjustColor(tool.color, 20)})">
-                    <i class="${tool.icon}"></i>
-                </div>
-                <span class="tool-name">${tool.name}</span>
-            `;
-            
-            toolsContainer.appendChild(toolElement);
-        }
-
-        // Create AI element
-        function createAIElement(ai) {
-            const aiElement = document.createElement('a');
-            aiElement.className = 'ai-item';
-            aiElement.href = ai.url;
-            aiElement.target = '_blank';
-            aiElement.title = ai.name;
-            
-            aiElement.innerHTML = `
-                <div class="ai-icon" style="background: linear-gradient(135deg, ${ai.color}, ${adjustColor(ai.color, 20)})">
-                    <i class="${ai.icon}"></i>
-                </div>
-                <span class="ai-name">${ai.name}</span>
-                <div class="ai-stats">
-                    <div class="stat">
-                        <span class="stat-value">${ai.stats.usage}</span>
-                        <span class="stat-label">Usage</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-value">${ai.stats.cost}</span>
-                        <span class="stat-label">Cost</span>
-                    </div>
-                </div>
-            `;
-            
-            aiContainer.appendChild(aiElement);
-        }
-
-        // Adjust color brightness
-        function adjustColor(color, amount) {
-            // Simplified color adjustment for demo
-            return color;
-        }
-
-        // Update date and time
-        function updateDateTime() {
-            const now = new Date();
-            const options = { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit'
-            };
-            dateTime.textContent = now.toLocaleDateString('en-US', options);
-        }
-
-        // Update button state based on selection
-        function updateButtonState() {
-            toolBtn.style.background = selectedIconType === 'tool' 
-                ? 'linear-gradient(90deg, var(--primary-color), var(--secondary-color))' 
-                : 'var(--dark-bg)';
-            toolBtn.style.color = selectedIconType === 'tool' ? 'white' : 'var(--text-primary)';
-            toolBtn.style.borderColor = selectedIconType === 'tool' 
-                ? 'var(--primary-color)' 
-                : 'var(--border-color)';
-            
-            aiBtn.style.background = selectedIconType === 'ai' 
-                ? 'linear-gradient(90deg, var(--accent-color), #059669)' 
-                : 'var(--dark-bg)';
-            aiBtn.style.color = selectedIconType === 'ai' ? 'white' : 'var(--text-primary)';
-            aiBtn.style.borderColor = selectedIconType === 'ai' 
-                ? 'var(--accent-color)' 
-                : 'var(--border-color)';
-        }
-
-        // Set up event listeners
-        function setupEventListeners() {
-            // Search functionality
-            searchBtn.addEventListener('click', performSearch);
-            searchInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    performSearch();
-                }
-            });
-            
-            // Clear search
-            clearSearchBtn.addEventListener('click', () => {
-                searchInput.value = '';
-                searchInput.focus();
-            });
-            
-            // Icon type selection
-            toolBtn.addEventListener('click', () => {
-                selectedIconType = 'tool';
-                updateButtonState();
-            });
-            
-            aiBtn.addEventListener('click', () => {
-                selectedIconType = 'ai';
-                updateButtonState();
-            });
-            
-            // Form submission
-            submitBtn.addEventListener('click', addCustomIcon);
-            
-            // Clear form
-            clearFormBtn.addEventListener('click', () => {
-                iconName.value = '';
-                iconUrl.value = '';
-                uploadedIcon = null;
-                selectedIconType = 'tool';
-                updateButtonState();
-            });
-            
-            // File upload
-            iconUpload.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    uploadedIcon = file;
-                    // In a real app, you would upload this to a server
-                    // For demo, we'll just show the filename
-                    const fileName = file.name;
-                    alert(`File "${fileName}" selected. In a real application, this would be uploaded to your server.`);
-                }
-            });
-        }
-
-        // Perform search
-        function performSearch() {
-            const query = searchInput.value.trim();
-            if (query) {
-                const bingSearchUrl = `https://www.bing.com/search?q=${encodeURIComponent(query)}`;
-                window.open(bingSearchUrl, '_blank');
-                searchInput.value = '';
-            } else {
-                searchInput.focus();
-            }
-        }
-
-        // Add custom icon
-        function addCustomIcon() {
-            const name = iconName.value.trim();
-            const url = iconUrl.value.trim();
-            
-            if (!name || !url) {
-                alert('Please enter both name and URL');
-                return;
-            }
-            
-            // Validate URL
-            try {
-                new URL(url);
-            } catch (e) {
-                alert('Please enter a valid URL (include http:// or https://)');
-                return;
-            }
-            
-            const colors = [
-                '#3B82F6', '#8B5CF6', '#10B981', '#F59E0B', '#EF4444', 
-                '#6366F1', '#EC4899', '#14B8A6', '#F97316', '#8B5CF6'
-            ];
-            
-            const randomColor = colors[Math.floor(Math.random() * colors.length)];
-            const randomIcon = selectedIconType === 'tool' ? 'fas fa-link' : 'fas fa-robot';
-            
-            const newItem = {
-                name,
-                url,
-                color: randomColor,
-                icon: randomIcon,
-                stats: { usage: "0.00", cost: "0.00" }
-            };
-            
-            if (selectedIconType === 'tool') {
-                createToolElement(newItem);
-            } else {
-                createAIElement(newItem);
-            }
-            
-            // Clear form
-            iconName.value = '';
-            iconUrl.value = '';
-            uploadedIcon = null;
-            
-            // Show success message
-            alert(`${name} has been added to ${selectedIconType === 'tool' ? 'Tools' : 'AI Tools'}!`);
-            
-            // Scroll to show new item
-            setTimeout(() => {
-                if (selectedIconType === 'tool') {
-                    toolsContainer.lastChild.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                } else {
-                    aiContainer.lastChild.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                }
-            }, 100);
-        }
-
-        // Add some interactivity to icons
-        document.addEventListener('DOMContentLoaded', () => {
-            // Add click effects to all icons
-            document.addEventListener('click', (e) => {
-                if (e.target.closest('.tool-item, .ai-item')) {
-                    const item = e.target.closest('.tool-item, .ai-item');
-                    item.style.transform = 'scale(0.95)';
-                    setTimeout(() => {
-                        item.style.transform = '';
-                    }, 200);
-                }
-            });
-            
-            // Add hover effect to growing circle
-            const growingCircle = document.querySelector('.growing-circle');
-            growingCircle.addEventListener('mouseenter', () => {
-                growingCircle.style.animationPlayState = 'paused';
-                growingCircle.style.transform = 'translate(-50%, -50%) scale(1.2)';
-            });
-            
-            growingCircle.addEventListener('mouseleave', () => {
-                growingCircle.style.animationPlayState = 'running';
-                growingCircle.style.transform = 'translate(-50%, -50%) scale(1)';
-            });
-            
-            // Initialize the page
-            initPage();
-        });
-
-        // Add keyboard shortcuts
-        document.addEventListener('keydown', (e) => {
-            // Ctrl+K or / to focus search
-            if ((e.ctrlKey && e.key === 'k') || e.key === '/') {
-                e.preventDefault();
-                searchInput.focus();
-            }
-            
-            // Escape to clear search
-            if (e.key === 'Escape' && document.activeElement === searchInput) {
-                searchInput.value = '';
-                searchInput.blur();
-            }
-            
-            // Ctrl+N to open add icon form
-            if (e.ctrlKey && e.key === 'n') {
-                e.preventDefault();
-                iconName.focus();
-            }
-        });
-    </script>
+    <!-- Main JavaScript -->
+    <script src="script.js"></script>
 </body>
 </html>
