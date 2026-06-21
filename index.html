@@ -4,184 +4,89 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Browser Home</title>
-
-    <!-- External Dependencies -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-    <!-- Main Stylesheet -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-    <!-- ============================================ -->
-    <!-- MAIN CONTAINER                              -->
-    <!-- ============================================ -->
-    <div class="container">
-
-        <!-- ============================================ -->
-        <!-- HEADER SECTION                              -->
-        <!-- ============================================ -->
+    <div class="cosmic-bg"></div>
+    <div class="app-wrapper">
         <header class="header">
             <div class="logo">
                 <i class="fas fa-home logo-icon"></i>
                 <h1>Smart Browser Home</h1>
             </div>
-            <div class="header-controls">
-                <div class="date-time" id="dateTime"></div>
-                <div class="header-buttons">
-                    <button class="btn btn-add" id="addBtn" title="Add new shortcut (Ctrl+N)">
-                        <i class="fas fa-plus-circle"></i> Add
-                    </button>
-                    <button class="btn btn-edit" id="editBtn" title="Rearrange items (Ctrl+E)">
-                        <i class="fas fa-arrows-alt"></i> Edit Layout
-                    </button>
-                    <button class="btn btn-save" id="saveBtn" title="Save current layout">
-                        <i class="fas fa-save"></i> Save
-                    </button>
-                    <button class="btn btn-export" id="exportBtn" title="Export configuration">
-                        <i class="fas fa-download"></i> Export
-                    </button>
-                    <button class="btn btn-import" id="importBtn" title="Import configuration">
-                        <i class="fas fa-upload"></i> Import
-                    </button>
-                    <button class="btn btn-reset" id="resetBtn" title="Reset to defaults">
-                        <i class="fas fa-undo-alt"></i> Reset
-                    </button>
-                </div>
-            </div>
+            <div class="date-time" id="dateTime"></div>
         </header>
 
-        <!-- ============================================ -->
-        <!-- LEFT SECTION - TOOLS                        -->
-        <!-- ============================================ -->
-        <section class="left-section" id="toolsSection">
-            <div class="section-header">
-                <h2 class="section-title">
-                    <i class="fas fa-tools"></i> Tools
-                </h2>
-                <span class="item-count" id="toolsCount">0 items</span>
-            </div>
-            <div class="tools-container" id="toolsContainer" data-type="tools">
-                <!-- Tools rendered dynamically -->
-            </div>
-            <!-- Empty state message -->
-            <div class="empty-state" id="toolsEmptyState" style="display:none;">
-                <i class="fas fa-toolbox"></i>
-                <p>No tools yet. Click <strong>Add</strong> to create one.</p>
-            </div>
-        </section>
-
-        <!-- ============================================ -->
-        <!-- CENTER SECTION - ANIMATION + SEARCH         -->
-        <!-- ============================================ -->
-        <section class="center-section">
-
-            <!-- Animation Display -->
-            <div class="animation-section">
-                <h3 class="animation-title">
-                    <i class="fas fa-expand-alt"></i> Growing Animations
-                </h3>
-                <div class="animation-container">
-                    <div class="growing-circle" id="growingCircle">
-                        <i class="fas fa-star"></i>
-                    </div>
-                    <div class="floating-icons floating-icon-1">
-                        <i class="fas fa-rocket"></i>
-                    </div>
-                    <div class="floating-icons floating-icon-2">
-                        <i class="fas fa-meteor"></i>
-                    </div>
-                    <div class="floating-icons floating-icon-3">
-                        <i class="fas fa-sun"></i>
-                    </div>
-                    <div class="floating-icons floating-icon-4">
-                        <i class="fas fa-moon"></i>
-                    </div>
-                    <!-- Particle overlay -->
-                    <div class="particles-container" id="particlesContainer"></div>
+        <main class="main-content">
+            <!-- Tools Section -->
+            <section class="left-section" id="toolsSection">
+                <div class="section-header">
+                    <h2 class="section-title"><i class="fas fa-tools"></i> Tools</h2>
+                    <span class="item-count" id="toolsCount">0 items</span>
                 </div>
-            </div>
+                <div class="tools-container" id="toolsContainer" data-type="tools"></div>
+                <div class="empty-state" id="toolsEmptyState" style="display:none;">
+                    <i class="fas fa-toolbox"></i>
+                    <p>No tools yet. Click <strong>Add</strong> below.</p>
+                </div>
+            </section>
 
-            <!-- Search Bar -->
-            <div class="search-section">
-                <h3 class="search-title">
-                    <i class="fas fa-search"></i> Search
-                </h3>
-                <div class="search-container" id="searchContainer">
-                    <div class="search-icon">
-                        <i class="fas fa-search"></i>
+            <!-- Center Section (Space scene + Search) -->
+            <!-- <section class="center-section"> -->
+                <!-- <div class="space-scene"> -->
+                    <!-- <div class="planet"></div> -->
+                    <!-- <div class="moon"></div> -->
+                    <!-- <div class="stars-layer"></div> -->
+                <!-- </div> -->
+            <!-- </section> -->
+                <div class="search-section floating-card">
+                    <h3 class="search-title"><i class="fas fa-search"></i> Universal Search</h3>
+                    <div class="search-container" id="searchContainer">
+                        <div class="search-icon"><i class="fas fa-search"></i></div>
+                        <input type="text" id="searchInput" class="search-input" placeholder="Search the web..." autocomplete="off">
+                        <button type="button" id="clearSearchBtn" class="clear-btn" title="Clear (Esc)"><i class="fas fa-times"></i></button>
                     </div>
-                    <input
-                        type="text"
-                        id="searchInput"
-                        class="search-input"
-                        placeholder="Search the web with Bing... (Press / to focus)"
-                        autocomplete="off"
-                    >
-                    <button type="button" id="clearSearchBtn" class="clear-btn" title="Clear search (Esc)">
-                        <i class="fas fa-times"></i>
-                    </button>
+                    <div class="search-engines">
+                        <span class="engine-label">Engine:</span>
+                        <button class="engine-btn active" data-engine="bing"><i class="fab fa-microsoft"></i> Bing</button>
+                        <button class="engine-btn" data-engine="google"><i class="fab fa-google"></i> Google</button>
+                        <button class="engine-btn" data-engine="duckduckgo"><i class="fas fa-duck"></i> DuckDuckGo</button>
+                        <button class="engine-btn" data-engine="brave"><i class="fas fa-shield-alt"></i> Brave</button>
+                    </div>
+                    <div class="form-buttons">
+                        <button type="button" id="searchBtn" class="btn btn-primary"><i class="fas fa-search"></i> Search</button>
+                        <button type="button" id="luckyBtn" class="btn btn-secondary"><i class="fas fa-dice"></i> I'm Feeling Lucky</button>
+                    </div>
                 </div>
-                <div class="search-engines">
-                    <span class="engine-label">Search with:</span>
-                    <button class="engine-btn active" data-engine="bing">
-                        <i class="fab fa-microsoft"></i> Bing
-                    </button>
-                    <button class="engine-btn" data-engine="google">
-                        <i class="fab fa-google"></i> Google
-                    </button>
-                    <button class="engine-btn" data-engine="duckduckgo">
-                        <i class="fas fa-duck"></i> DuckDuckGo
-                    </button>
-                </div>
-                <div class="form-buttons">
-                    <button type="button" id="searchBtn" class="btn btn-primary">
-                        <i class="fas fa-search"></i> Search Now
-                    </button>
-                    <button type="button" id="luckyBtn" class="btn btn-secondary">
-                        <i class="fas fa-dice"></i> I'm Feeling Lucky
-                    </button>
-                </div>
-            </div>
-        </section>
 
-        <!-- ============================================ -->
-        <!-- RIGHT SECTION - AI TOOLS                    -->
-        <!-- ============================================ -->
-        <section class="right-section" id="aiSection">
-            <div class="section-header">
-                <h2 class="section-title">
-                    <i class="fas fa-robot"></i> AI
-                </h2>
-                <span class="item-count" id="aiCount">0 items</span>
-            </div>
-            <div class="ai-container" id="aiContainer" data-type="ai">
-                <!-- AI tools rendered dynamically -->
-            </div>
-            <!-- Empty state message -->
-            <div class="empty-state" id="aiEmptyState" style="display:none;">
-                <i class="fas fa-robot"></i>
-                <p>No AI tools yet. Click <strong>Add</strong> to create one.</p>
-            </div>
-        </section>
+            <!-- AI Section -->
+            <section class="right-section" id="aiSection">
+                <div class="section-header">
+                    <h2 class="section-title"><i class="fas fa-robot"></i> AI</h2>
+                    <span class="item-count" id="aiCount">0 items</span>
+                </div>
+                <div class="ai-container" id="aiContainer" data-type="ai"></div>
+                <div class="empty-state" id="aiEmptyState" style="display:none;">
+                    <i class="fas fa-robot"></i>
+                    <p>No AI tools yet. Click <strong>Add</strong> below.</p>
+                </div>
+            </section>
+        </main>
 
-        <!-- ============================================ -->
-        <!-- FOOTER                                      -->
-        <!-- ============================================ -->
-        <footer class="footer">
-            <p>Smart Browser Home v2.0 • All icons are trademarks of their respective owners</p>
-            <p class="footer-hint">
-                <i class="fas fa-keyboard"></i> Shortcuts: <kbd>/</kbd> Search &nbsp;|&nbsp;
-                <kbd>Ctrl+E</kbd> Edit &nbsp;|&nbsp; <kbd>Ctrl+N</kbd> Add &nbsp;|&nbsp;
-                <kbd>Ctrl+S</kbd> Save &nbsp;|&nbsp; <kbd>Esc</kbd> Clear
-            </p>
+        <!-- Floating Bottom Bar -->
+        <footer class="bottom-bar">
+            <button class="btn btn-add" id="addBtn" title="Add new shortcut (Ctrl+N)"><i class="fas fa-plus-circle"></i> Add</button>
+            <button class="btn btn-edit" id="editBtn" title="Rearrange items (Ctrl+E)"><i class="fas fa-arrows-alt"></i> Edit</button>
+            <button class="btn btn-save" id="saveBtn" title="Save layout (Ctrl+S)"><i class="fas fa-save"></i> Save</button>
+            <button class="btn btn-export" id="exportBtn" title="Export configuration"><i class="fas fa-download"></i> Export</button>
+            <button class="btn btn-import" id="importBtn" title="Import configuration"><i class="fas fa-upload"></i> Import</button>
+            <button class="btn btn-reset" id="resetBtn" title="Reset to defaults"><i class="fas fa-undo-alt"></i> Reset</button>
         </footer>
     </div>
 
-    <!-- ============================================ -->
-    <!-- ADD ITEM MODAL                              -->
-    <!-- ============================================ -->
+    <!-- Add Item Modal -->
     <div class="modal-overlay" id="addModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -190,42 +95,27 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="modalCategory">
-                        <i class="fas fa-layer-group"></i> Category
-                    </label>
+                    <label for="modalCategory"><i class="fas fa-layer-group"></i> Category</label>
                     <select id="modalCategory" class="form-input">
                         <option value="tools">Tools & Dev</option>
                         <option value="ai">AI Hub</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="modalName">
-                        <i class="fas fa-tag"></i> Name <span class="required">*</span>
-                    </label>
-                    <input type="text" id="modalName" class="form-input"
-                           placeholder="e.g. GitHub, ChatGPT..." maxlength="50">
+                    <label for="modalName"><i class="fas fa-tag"></i> Name <span class="required">*</span></label>
+                    <input type="text" id="modalName" class="form-input" placeholder="e.g. GitHub, ChatGPT..." maxlength="50">
                 </div>
                 <div class="form-group">
-                    <label for="modalUrl">
-                        <i class="fas fa-link"></i> URL <span class="required">*</span>
-                    </label>
-                    <input type="url" id="modalUrl" class="form-input"
-                           placeholder="https://example.com">
+                    <label for="modalUrl"><i class="fas fa-link"></i> URL <span class="required">*</span></label>
+                    <input type="url" id="modalUrl" class="form-input" placeholder="https://example.com">
                 </div>
                 <div class="form-group">
-                    <label for="modalIcon">
-                        <i class="fas fa-icons"></i> FontAwesome Icon Class
-                    </label>
-                    <input type="text" id="modalIcon" class="form-input"
-                           placeholder="e.g. fab fa-github" value="fas fa-link">
-                    <small class="form-hint">
-                        Browse icons at <a href="https://fontawesome.com/icons" target="_blank">fontawesome.com</a>
-                    </small>
+                    <label for="modalIcon"><i class="fas fa-icons"></i> FontAwesome Icon</label>
+                    <input type="text" id="modalIcon" class="form-input" placeholder="e.g. fab fa-github" value="fas fa-link">
+                    <small class="form-hint">Browse icons at <a href="https://fontawesome.com/icons" target="_blank">fontawesome.com</a></small>
                 </div>
                 <div class="form-group">
-                    <label for="modalColor">
-                        <i class="fas fa-palette"></i> Color
-                    </label>
+                    <label for="modalColor"><i class="fas fa-palette"></i> Color</label>
                     <div class="color-picker-row">
                         <input type="color" id="modalColor" class="form-color" value="#3b82f6">
                         <div class="color-presets" id="colorPresets">
@@ -243,16 +133,12 @@
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" id="cancelModalBtn">Cancel</button>
-                <button class="btn btn-primary" id="submitModalBtn">
-                    <i class="fas fa-plus"></i> Add Shortcut
-                </button>
+                <button class="btn btn-primary" id="submitModalBtn"><i class="fas fa-plus"></i> Add Shortcut</button>
             </div>
         </div>
     </div>
 
-    <!-- ============================================ -->
-    <!-- DELETE CONFIRMATION MODAL                   -->
-    <!-- ============================================ -->
+    <!-- Delete Confirmation Modal -->
     <div class="modal-overlay" id="deleteModal">
         <div class="modal-content modal-sm">
             <div class="modal-header">
@@ -260,27 +146,22 @@
                 <button class="modal-close" id="deleteModalCloseBtn">&times;</button>
             </div>
             <div class="modal-body">
-                <p>Are you sure you want to delete <strong id="deleteItemName"></strong>?</p>
-                <p class="text-warning">This action cannot be undone.</p>
+                <p>Delete <strong id="deleteItemName"></strong>?</p>
+                <p class="text-warning">This cannot be undone.</p>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" id="cancelDeleteBtn">Cancel</button>
-                <button class="btn btn-danger" id="confirmDeleteBtn">
-                    <i class="fas fa-trash-alt"></i> Delete
-                </button>
+                <button class="btn btn-danger" id="confirmDeleteBtn"><i class="fas fa-trash-alt"></i> Delete</button>
             </div>
         </div>
     </div>
 
-    <!-- ============================================ -->
-    <!-- TOAST NOTIFICATION                          -->
-    <!-- ============================================ -->
+    <!-- Toast Container -->
     <div class="toast-container" id="toastContainer"></div>
 
     <!-- Hidden file input for import -->
     <input type="file" id="importFileInput" accept=".json" style="display:none;">
 
-    <!-- Main JavaScript -->
     <script src="script.js"></script>
 </body>
 </html>
