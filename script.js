@@ -472,20 +472,29 @@ function setupEventListeners() {
         if (e.key === 'Escape') {
             if (addModal.classList.contains('active')) closeAddModal();
             if (deleteModal.classList.contains('active')) closeDeleteModal();
-            if (document.activeElement === searchInput) { searchInput.value = ''; searchInput.blur(); }
+            if (document.activeElement === searchInput) { searchInput.value = ''; searchInput.blur(); updateClearButtonVisibility(); }
         }
         if ((e.ctrlKey || e.metaKey) && e.key === 'e' && !e.shiftKey) {
             e.preventDefault(); isEditMode ? exitEditMode(true) : enterEditMode();
+            return;
         }
         if ((e.ctrlKey || e.metaKey) && e.key === 's' && isEditMode) {
             e.preventDefault(); exitEditMode(true);
+            return;
         }
         if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
             e.preventDefault(); openAddModal();
+            return;
         }
-        if (e.key === '/' && document.activeElement !== searchInput &&
+        const ignoreTags = ['INPUT', 'TEXTAREA', 'SELECT'];
+        const isPrintable = e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey;
+        if (isPrintable && document.activeElement !== searchInput &&
+            !ignoreTags.includes(document.activeElement.tagName) &&
             !addModal.classList.contains('active') && !deleteModal.classList.contains('active')) {
-            e.preventDefault(); searchInput.focus();
+            e.preventDefault();
+            searchInput.focus();
+            searchInput.value += e.key;
+            updateClearButtonVisibility();
         }
     });
 }
