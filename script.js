@@ -96,7 +96,10 @@ function createToolCard(tool) {
     const el = document.createElement('a');
     el.className = 'tool-item';
     el.href = isEditMode ? 'javascript:void(0)' : tool.url;
-    if (!isEditMode) el.target = '_blank';
+    if (!isEditMode) {
+        el.target = '_blank';
+        el.rel = 'noopener noreferrer';
+    }
     el.dataset.id = tool.id;
     el.dataset.name = tool.name;
     el.title = tool.name;
@@ -125,7 +128,10 @@ function createAICard(ai) {
     const el = document.createElement('a');
     el.className = 'ai-item';
     el.href = isEditMode ? 'javascript:void(0)' : ai.url;
-    if (!isEditMode) el.target = '_blank';
+    if (!isEditMode) {
+        el.target = '_blank';
+        el.rel = 'noopener noreferrer';
+    }
     el.dataset.id = ai.id;
     el.dataset.name = ai.name;
     el.title = ai.name;
@@ -175,9 +181,11 @@ function enableDragForContainer(container) {
         card.addEventListener('dragstart', handleDragStart);
         card.addEventListener('dragend', handleDragEnd);
     });
+    if (container.dataset.dragEnabled === 'true') return;
     container.addEventListener('dragover', handleDragOver);
     container.addEventListener('dragenter', (e) => e.preventDefault());
     container.addEventListener('drop', handleDrop);
+    container.dataset.dragEnabled = 'true';
 }
 
 let draggedItem = null;
@@ -387,11 +395,17 @@ function performLuckySearch() {
     searchInput.value = '';
 }
 
+function updateSearchPlaceholder() {
+    const engineNames = { bing: 'Bing', google: 'Google', duckduckgo: 'DuckDuckGo', brave: 'Brave' };
+    searchInput.placeholder = `Search the web with ${engineNames[currentSearchEngine]}...`;
+}
+
 function setSearchEngine(engine) {
     currentSearchEngine = engine;
     $$('.engine-btn').forEach(b => b.classList.remove('active'));
     const btn = $(`.engine-btn[data-engine="${engine}"]`);
     if (btn) btn.classList.add('active');
+    updateSearchPlaceholder();
 }
 
 function showToast(message, type = 'info') {
@@ -401,6 +415,12 @@ function showToast(message, type = 'info') {
     toast.innerHTML = `<i class="fas ${icons[type]}"></i> ${message}`;
     toastContainer.appendChild(toast);
     setTimeout(() => { if (toast.parentNode) toast.remove(); }, 3000);
+}
+
+function updateClearButtonVisibility() {
+    const hasText = searchInput.value.trim().length > 0;
+    clearSearchBtn.style.opacity = hasText ? '1' : '0.4';
+    clearSearchBtn.disabled = !hasText;
 }
 
 function updateDateTime() {
@@ -415,8 +435,9 @@ function updateDateTime() {
 function setupEventListeners() {
     searchBtn.addEventListener('click', performSearch);
     luckyBtn.addEventListener('click', performLuckySearch);
-    searchInput.addEventListener('keypress', e => { if (e.key === 'Enter') performSearch(); });
-    clearSearchBtn.addEventListener('click', () => { searchInput.value = ''; searchInput.focus(); });
+    searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); performSearch(); } });
+    searchInput.addEventListener('input', updateClearButtonVisibility);
+    clearSearchBtn.addEventListener('click', () => { searchInput.value = ''; searchInput.focus(); updateClearButtonVisibility(); });
     $$('.engine-btn').forEach(btn => btn.addEventListener('click', () => setSearchEngine(btn.dataset.engine)));
     editBtn.addEventListener('click', enterEditMode);
     saveBtn.addEventListener('click', () => exitEditMode(true));
@@ -474,6 +495,8 @@ function init() {
     renderAll();
     updateDateTime();
     setInterval(updateDateTime, 1000);
+    updateSearchPlaceholder();
+    updateClearButtonVisibility();
     searchInput.focus();
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
