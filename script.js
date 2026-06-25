@@ -31,12 +31,38 @@ let isEditMode = false;
 let currentSearchEngine = 'bing';
 let itemToDelete = null;
 
+function isValidHexColor(color) {
+    return /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(color);
+}
+
+function isValidUrl(url) {
+    try {
+        const parsed = new URL(url);
+        return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+    } catch {
+        return false;
+    }
+}
+
+function isValidIconClass(icon) {
+    return /^[a-zA-Z0-9\s-]+$/.test(icon);
+}
+
+function isValidItem(item) {
+    return item && typeof item === 'object' &&
+        typeof item.id === 'string' && item.id.trim() &&
+        typeof item.name === 'string' && item.name.trim() &&
+        typeof item.url === 'string' && isValidUrl(item.url) &&
+        typeof item.icon === 'string' && isValidIconClass(item.icon) &&
+        typeof item.color === 'string' && isValidHexColor(item.color);
+}
+
 function loadFromStorage(key, fallback) {
     try {
         const stored = localStorage.getItem(key);
         if (stored) {
             const parsed = JSON.parse(stored);
-            if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+            if (Array.isArray(parsed) && parsed.length > 0 && parsed.every(isValidItem)) return parsed;
         }
     } catch (e) {}
     return JSON.parse(JSON.stringify(fallback));
@@ -103,21 +129,33 @@ function createToolCard(tool) {
     el.dataset.id = tool.id;
     el.dataset.name = tool.name;
     el.title = tool.name;
-    el.innerHTML = `
-        <div class="tool-icon" style="background: linear-gradient(135deg, ${tool.color}, ${lightenColor(tool.color, 30)})">
-            <i class="${tool.icon}"></i>
-        </div>
-        <span class="tool-name">${tool.name}</span>
-        ${isEditMode ? '<button class="delete-btn" title="Delete this item">&times;</button>' : ''}
-    `;
+
+    const iconContainer = document.createElement('div');
+    iconContainer.className = 'tool-icon';
+    iconContainer.style.background = `linear-gradient(135deg, ${tool.color}, ${lightenColor(tool.color, 30)})`;
+
+    const icon = document.createElement('i');
+    icon.className = tool.icon;
+    iconContainer.appendChild(icon);
+
+    const nameEl = document.createElement('span');
+    nameEl.className = 'tool-name';
+    nameEl.textContent = tool.name;
+
+    el.appendChild(iconContainer);
+    el.appendChild(nameEl);
+
     if (isEditMode) {
-        const deleteBtn = el.querySelector('.delete-btn');
-        if (deleteBtn) {
-            deleteBtn.addEventListener('click', (e) => {
-                e.preventDefault(); e.stopPropagation();
-                openDeleteModal(tool, 'tools');
-            });
-        }
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'delete-btn';
+        deleteBtn.type = 'button';
+        deleteBtn.title = 'Delete this item';
+        deleteBtn.textContent = '×';
+        deleteBtn.addEventListener('click', (e) => {
+            e.preventDefault(); e.stopPropagation();
+            openDeleteModal(tool, 'tools');
+        });
+        el.appendChild(deleteBtn);
         el.addEventListener('click', (e) => e.preventDefault());
         el.draggable = true;
     }
@@ -135,21 +173,33 @@ function createAICard(ai) {
     el.dataset.id = ai.id;
     el.dataset.name = ai.name;
     el.title = ai.name;
-    el.innerHTML = `
-        <div class="ai-icon" style="background: linear-gradient(135deg, ${ai.color}, ${lightenColor(ai.color, 30)})">
-            <i class="${ai.icon}"></i>
-        </div>
-        <span class="ai-name">${ai.name}</span>
-        ${isEditMode ? '<button class="delete-btn" title="Delete this item">&times;</button>' : ''}
-    `;
+
+    const iconContainer = document.createElement('div');
+    iconContainer.className = 'ai-icon';
+    iconContainer.style.background = `linear-gradient(135deg, ${ai.color}, ${lightenColor(ai.color, 30)})`;
+
+    const icon = document.createElement('i');
+    icon.className = ai.icon;
+    iconContainer.appendChild(icon);
+
+    const nameEl = document.createElement('span');
+    nameEl.className = 'ai-name';
+    nameEl.textContent = ai.name;
+
+    el.appendChild(iconContainer);
+    el.appendChild(nameEl);
+
     if (isEditMode) {
-        const deleteBtn = el.querySelector('.delete-btn');
-        if (deleteBtn) {
-            deleteBtn.addEventListener('click', (e) => {
-                e.preventDefault(); e.stopPropagation();
-                openDeleteModal(ai, 'ai');
-            });
-        }
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'delete-btn';
+        deleteBtn.type = 'button';
+        deleteBtn.title = 'Delete this item';
+        deleteBtn.textContent = '×';
+        deleteBtn.addEventListener('click', (e) => {
+            e.preventDefault(); e.stopPropagation();
+            openDeleteModal(ai, 'ai');
+        });
+        el.appendChild(deleteBtn);
         el.addEventListener('click', (e) => e.preventDefault());
         el.draggable = true;
     }
@@ -350,8 +400,10 @@ function importConfig(file) {
     reader.onload = function(e) {
         try {
             const config = JSON.parse(e.target.result);
-            if (!config.tools || !config.ai) throw new Error('Invalid');
-            toolsData = config.tools; aiData = config.ai;
+            if (!config || !Array.isArray(config.tools) || !Array.isArray(config.ai)) throw new Error('Invalid');
+            if (!config.tools.every(isValidItem) || !config.ai.every(isValidItem)) throw new Error('Invalid');
+            toolsData = config.tools;
+            aiData = config.ai;
             saveToStorage(STORAGE_KEY_TOOLS, toolsData);
             saveToStorage(STORAGE_KEY_AI, aiData);
             renderAll();
