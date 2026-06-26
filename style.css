@@ -101,7 +101,8 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    padding: 20px 20px 0 20px;
+    /* Reserve room for the fixed bottom bar (+ safe-area for notched phones). */
+    padding: 20px 20px calc(96px + env(safe-area-inset-bottom)) 20px;
     position: relative;
     z-index: 1;
 }
@@ -140,7 +141,7 @@ body {
 }
 
 .logo h1 {
-    font-size: 1.8rem;
+    font-size: clamp(1.3rem, 1rem + 1.6vw, 1.8rem);
     font-weight: 700;
     color: var(--text-primary);
     letter-spacing: -0.5px;
@@ -161,7 +162,7 @@ body {
 .main-content {
     display: grid;
     grid-template-columns: 1fr 2fr 1fr;
-    gap: 25px;
+    gap: clamp(14px, 2vw, 25px);
     flex: 1;
     margin-bottom: 25px;
 }
@@ -245,12 +246,12 @@ body {
     backdrop-filter: blur(16px);
     border: 1px solid rgba(255,255,255,0.1);
     border-radius: var(--radius-xl);
-    padding: 25px;
+    padding: clamp(16px, 3vw, 25px);
     box-shadow: 0 25px 45px rgba(0,0,0,0.6), 0 0 20px rgba(59,130,246,0.2);
 }
 
 .search-title {
-    font-size: 1.3rem;
+    font-size: clamp(1.05rem, 0.95rem + 0.5vw, 1.3rem);
     color: var(--text-primary);
     margin-bottom: 18px;
     display: flex;
@@ -277,11 +278,12 @@ body {
 
 .search-input {
     flex: 1;
+    min-width: 0;
     padding: 14px 8px;
     background: transparent;
     border: none;
     color: var(--text-primary);
-    font-size: 1.05rem;
+    font-size: clamp(0.95rem, 0.9rem + 0.3vw, 1.05rem);
     outline: none;
 }
 
@@ -431,7 +433,7 @@ body {
 }
 
 .section-title {
-    font-size: 1.4rem;
+    font-size: clamp(1.1rem, 1rem + 0.5vw, 1.4rem);
     font-weight: 600;
     color: var(--text-primary);
     display: flex;
@@ -465,8 +467,10 @@ body {
 /* Tool & AI cards */
 .tools-container,
 .ai-container {
+    /* Fluid grid: as many columns as fit, each at least 130px.
+       Columns collapse/grow automatically with container width — no media queries needed. */
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
     gap: 14px;
     min-height: 100px;
 }
@@ -769,6 +773,8 @@ select.form-input {
 ::-webkit-scrollbar-thumb:hover { background: var(--primary-light); }
 
 /* Responsive */
+
+/* Large desktops & narrow ultra-wide: 3-col starts to feel cramped below ~1400px. */
 @media (max-width: 1400px) {
     .main-content { grid-template-columns: 1fr 1fr; }
     .center-section { grid-column: 1 / -1; order: 1; }
@@ -776,25 +782,77 @@ select.form-input {
     .header { flex-direction: column; align-items: flex-start; }
 }
 
+/* Tablet landscape: keep two side-by-side panels. */
+@media (max-width: 1100px) {
+    .tools-container, .ai-container { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
+}
+
+/* Tablet portrait: single column, search first, then panels. */
 @media (max-width: 900px) {
     .main-content { grid-template-columns: 1fr; gap: 18px; }
     .left-section, .right-section, .center-section { grid-column: 1 / -1; }
-    .tools-container, .ai-container { grid-template-columns: repeat(3, 1fr); }
+    .tools-container, .ai-container { grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); }
     .floating-card { width: 95%; margin: 0 auto; }
-    .bottom-bar { gap: 5px; padding: 8px 15px; }
+    .bottom-bar { gap: 6px; padding: 8px 14px; }
     .btn { font-size: 0.8rem; padding: 8px 11px; }
     .modal-content { width: 95vw; }
 }
 
-@media (max-width: 480px) {
-    body { padding: 10px; }
+/* Phones: tighter spacing, fewer columns, engine chips wrap. */
+@media (max-width: 600px) {
+    .app-wrapper { padding: 14px 12px calc(96px + env(safe-area-inset-bottom)) 12px; }
+    .tools-container, .ai-container { grid-template-columns: repeat(auto-fit, minmax(95px, 1fr)); gap: 10px; }
+    .tool-icon, .ai-icon { width: 52px; height: 52px; font-size: 1.4rem; }
+    .tool-name, .ai-name { font-size: 0.82rem; }
+    .floating-card { width: 100%; padding: 18px; }
+    .search-engines { gap: 6px; }
+    .engine-btn { padding: 6px 10px; font-size: 0.72rem; }
+    .form-buttons { flex-wrap: wrap; }
+    .form-buttons .btn { flex: 1 1 auto; }
+    .header { padding: 14px 16px; margin-bottom: 18px; }
+    .logo { gap: 10px; }
+    .logo-icon { font-size: 1.6rem; }
+    .date-time { font-size: 0.8rem; padding: 6px 10px; }
+    /* Icon-only bottom bar that scrolls horizontally so all actions stay reachable. */
+    .bottom-bar {
+        bottom: calc(12px + env(safe-area-inset-bottom));
+        left: 12px; right: 12px;
+        transform: none;
+        width: max-content; max-width: calc(100% - 24px);
+        margin: 0 auto;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+    .bottom-bar::-webkit-scrollbar { display: none; }
+    .bottom-bar .btn { width: auto; flex: 0 0 auto; padding: 10px 12px; }
+    .bottom-bar .btn .btn-label { display: none; }
+}
+
+/* Small phones: 2-up grid, full-width action buttons stack. */
+@media (max-width: 380px) {
     .tools-container, .ai-container { grid-template-columns: repeat(2, 1fr); }
     .form-buttons { flex-direction: column; }
-    .btn { width: 100%; }
-    .header { padding: 14px; }
-    .logo h1 { font-size: 1.4rem; }
-    .logo-icon { font-size: 1.6rem; }
-    .search-engines { gap: 4px; }
-    .engine-btn { padding: 5px 9px; font-size: 0.7rem; }
-    .bottom-bar { flex-wrap: wrap; justify-content: center; }
+    .form-buttons .btn { width: 100%; }
+}
+
+/* Landscape phones: reclaim vertical space so the search card fits without scrolling. */
+@media (max-height: 500px) and (orientation: landscape) {
+    .header { padding: 10px 16px; margin-bottom: 12px; }
+    .logo-icon { font-size: 1.4rem; }
+    .logo h1 { font-size: 1.2rem; }
+    .floating-card { padding: 14px 16px; }
+    .search-title { margin-bottom: 10px; }
+    .app-wrapper { padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
+}
+
+/* Respect users who prefer less motion: kill loops & jiggle. */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+    }
+    .cosmic-bg, .cosmic-bg::before { animation: none !important; }
 }
