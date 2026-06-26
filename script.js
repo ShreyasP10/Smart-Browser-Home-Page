@@ -60,9 +60,11 @@ function isValidItem(item) {
 function loadFromStorage(key, fallback) {
     try {
         const stored = localStorage.getItem(key);
-        if (stored) {
+        if (stored !== null) {
             const parsed = JSON.parse(stored);
-            if (Array.isArray(parsed) && parsed.length > 0 && parsed.every(isValidItem)) return parsed;
+            // An empty array is a valid, intentional state (user deleted everything) —
+            // only restore defaults when storage is absent or the data is malformed.
+            if (Array.isArray(parsed) && parsed.every(isValidItem)) return parsed;
         }
     } catch (e) {}
     return JSON.parse(JSON.stringify(fallback));
@@ -224,7 +226,11 @@ function lightenColor(hex, percent) {
     return `#${(1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1)}`;
 }
 
-// Drag & Drop
+// Drag & Drop (with FLIP animation for smooth reordering)
+const FLIP_TRANSITION = 'transform 0.28s cubic-bezier(0.22, 1, 0.36, 1)';
+let draggedItem = null;
+let draggedType = null;
+
 function enableDragForContainer(container) {
     const cards = container.querySelectorAll('.tool-item, .ai-item');
     cards.forEach(card => {
@@ -238,37 +244,91 @@ function enableDragForContainer(container) {
     container.dataset.dragEnabled = 'true';
 }
 
-let draggedItem = null;
-
 function handleDragStart(e) {
     draggedItem = this;
+    const owner = this.closest('[data-type]');
+    draggedType = owner ? owner.dataset.type : null;
     this.classList.add('item-dragging');
+    document.body.classList.add('is-dragging');
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/plain', this.dataset.id);
+    // Custom, slightly transparent drag preview
     const ghost = this.cloneNode(true);
-    ghost.style.position = 'absolute'; ghost.style.top = '-9999px'; ghost.style.opacity = '0.6'; ghost.style.width = this.offsetWidth + 'px';
+    ghost.style.position = 'absolute';
+    ghost.style.top = '-9999px';
+    ghost.style.left = '-9999px';
+    ghost.style.opacity = '0.6';
+    ghost.style.width = this.offsetWidth + 'px';
+    ghost.style.pointerEvents = 'none';
     document.body.appendChild(ghost);
-    e.dataTransfer.setDragImage(ghost, ghost.offsetWidth/2, ghost.offsetHeight/2);
-    setTimeout(() => document.body.removeChild(ghost), 0);
+    try { e.dataTransfer.setDragImage(ghost, ghost.offsetWidth / 2, ghost.offsetHeight / 2); }
+    catch (err) { /* some browsers reject setDragImage */ }
+    setTimeout(() => { if (ghost.parentNode) ghost.parentNode.removeChild(ghost); }, 0);
 }
 
-function handleDragEnd(e) {
-    this.classList.remove('item-dragging');
+function handleDragEnd() {
+    if (this) this.classList.remove('item-dragging');
+    // Clear leftover FLIP inline styles so hover/jiggle behave normally again.
+    $$('.tool-item, .ai-item').forEach(c => {
+        c.style.transition = '';
+        c.style.transform = '';
+        c.style.zIndex = '';
+    });
     draggedItem = null;
+    draggedType = null;
+    document.body.classList.remove('is-dragging');
     $$('.grid-drag-over').forEach(el => el.classList.remove('grid-drag-over'));
 }
 
 function handleDragOver(e) {
     e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    this.classList.add('grid-drag-over');
     if (!draggedItem) return;
-    const containerType = this.dataset.type;
-    const draggedType = toolsData.some(t => t.id === draggedItem.dataset.id) ? 'tools' : 'ai';
-    if (containerType !== draggedType) { e.dataTransfer.dropEffect = 'none'; return; }
-    const afterElement = getClosestCard(this, e.clientX, e.clientY);
-    if (afterElement) this.insertBefore(draggedItem, afterElement);
-    else this.appendChild(draggedItem);
+    if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
+    const container = this;
+    if (container.dataset.type !== draggedType) {
+        if (e.dataTransfer) e.dataTransfer.dropEffect = 'none';
+        return;
+    }
+    container.classList.add('grid-drag-over');
+
+    const afterElement = getCardAfterCursor(container, e.clientX, e.clientY);
+
+    // Skip the DOM move when it would change nothing — prevents flicker on every mousemove.
+    if (afterElement && afterElement.previousElementSibling === draggedItem) return;
+    if (!afterElement && container.lastElementChild === draggedItem) return;
+
+    // Record FIRST positions of the cards about to shift (FLIP).
+    const siblings = [...container.querySelectorAll('.tool-item:not(.item-dragging), .ai-item:not(.item-dragging)')];
+    const firstPositions = new Map();
+    siblings.forEach(c => firstPositions.set(c, c.getBoundingClientRect()));
+
+    // Perform the move.
+    if (afterElement) container.insertBefore(draggedItem, afterElement);
+    else container.appendChild(draggedItem);
+
+    // LAST + INVERT + PLAY: animate each shifted card back to its new slot.
+    siblings.forEach(c => {
+        const first = firstPositions.get(c);
+        const last = c.getBoundingClientRect();
+        const dx = first.left - last.left;
+        const dy = first.top - last.top;
+        if (!dx && !dy) return;
+        c.classList.add('flip-move');
+        c.style.transition = 'none';
+        c.style.transform = `translate(${dx}px, ${dy}px)`;
+        c.style.zIndex = '5';
+        // Force reflow so the INVERT transform commits before re-enabling the transition.
+        void c.offsetWidth;
+        c.style.transition = FLIP_TRANSITION;
+        c.style.transform = '';
+        const cleanup = () => {
+            c.classList.remove('flip-move');
+            c.style.transition = '';
+            c.style.zIndex = '';
+            c.removeEventListener('transitionend', cleanup);
+        };
+        c.addEventListener('transitionend', cleanup);
+    });
 }
 
 function handleDrop(e) {
@@ -276,16 +336,20 @@ function handleDrop(e) {
     this.classList.remove('grid-drag-over');
 }
 
-function getClosestCard(container, x, y) {
+// Returns the card before which the dragged item should be inserted (grid-aware),
+// or null when the cursor is past the last card (append to end).
+function getCardAfterCursor(container, x, y) {
     const cards = [...container.querySelectorAll('.tool-item:not(.item-dragging), .ai-item:not(.item-dragging)')];
-    let closest = null, minDistance = Infinity;
-    cards.forEach(card => {
-        const rect = card.getBoundingClientRect();
-        const cx = rect.left + rect.width/2, cy = rect.top + rect.height/2;
-        const dist = Math.hypot(x - cx, y - cy);
-        if (dist < minDistance) { minDistance = dist; closest = card; }
-    });
-    return closest;
+    for (const card of cards) {
+        const box = card.getBoundingClientRect();
+        const midX = box.left + box.width / 2;
+        const midY = box.top + box.height / 2;
+        // Cursor in the top half, or in the left half of this card's row band → insert before it.
+        if (y < midY || (y < box.bottom && x < midX)) {
+            return card;
+        }
+    }
+    return null;
 }
 
 function enterEditMode() {
@@ -551,6 +615,29 @@ function setupEventListeners() {
     });
 }
 
+function registerServiceWorker() {
+    if (!('serviceWorker' in navigator)) return;
+    // Wait for load so registration never competes with first paint.
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('service-worker.js').then((reg) => {
+            // A new SW has taken control after an update -> tell the user.
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                showToast('Updated. Reload to apply changes.', 'info');
+            });
+            // Prompt when a new version is waiting to activate.
+            reg.addEventListener('updatefound', () => {
+                const newWorker = reg.installing;
+                if (!newWorker) return;
+                newWorker.addEventListener('statechange', () => {
+                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                        showToast('A new version is available.', 'info');
+                    }
+                });
+            });
+        }).catch((err) => console.warn('SW registration failed:', err));
+    });
+}
+
 function init() {
     setupEventListeners();
     renderAll();
@@ -559,6 +646,7 @@ function init() {
     updateSearchPlaceholder();
     updateClearButtonVisibility();
     searchInput.focus();
+    registerServiceWorker();
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
 else init();

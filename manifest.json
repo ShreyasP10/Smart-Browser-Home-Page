@@ -1,12 +1,21 @@
 {
-    "manifest_version":3,
-    "version":"1",
-    "name":"New Tab",
-    "description":"New Tab",    
-    "chrome_url_overrides":{
-        "New Tab":"index.html"  
-    },
-    "icons":{
-        "2":"Shreyas.jpg"
-    }
+    "name": "Smart Browser Home",
+    "short_name": "Smart Home",
+    "description": "A personalised cosmic space-themed start page with tools, AI hub, and multi-engine search.",
+    "id": "/?source=pwa",
+    "start_url": "./?source=pwa",
+    "scope": "./",
+    "display": "standalone",
+    "orientation": "any",
+    "background_color": "#03050a",
+    "theme_color": "#0f172a",
+    "categories": ["productivity", "utilities", "personalization"],
+    "lang": "en",
+    "dir": "ltr",
+    "icons": [
+        { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+        { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+        { "src": "icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+        { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    ]
 }
