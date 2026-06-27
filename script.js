@@ -1,3 +1,4 @@
+// DEFAULT DATA 
 const defaultTools = [
     { id: 't1', name: "Gmail", url: "https://mail.google.com", color: "#EA4335", icon: "fas fa-envelope" },
     { id: 't2', name: "YouTube", url: "https://youtube.com", color: "#FF0000", icon: "fab fa-youtube" },
@@ -22,6 +23,7 @@ const defaultAI = [
     { id: 'a8', name: "HuggingFace", url: "https://huggingface.co", color: "#FFD21E", icon: "fas fa-hands-helping" }
 ];
 
+// STORAGE & STATE 
 const STORAGE_KEY_TOOLS = 'sb_tools_v3';
 const STORAGE_KEY_AI = 'sb_ai_v3';
 
@@ -31,6 +33,7 @@ let isEditMode = false;
 let currentSearchEngine = 'bing';
 let itemToDelete = null;
 
+// VALIDATION HELPERS 
 function isValidHexColor(color) {
     return /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(color);
 }
@@ -39,13 +42,11 @@ function isValidUrl(url) {
     try {
         const parsed = new URL(url);
         return parsed.protocol === 'http:' || parsed.protocol === 'https:';
-    } catch {
-        return false;
-    }
+    } catch { return false; }
 }
 
 function isValidIconClass(icon) {
-    return /^[a-zA-Z0-9\s-]+$/.test(icon);
+    return /^[a-zA-Z0-9\s\-_]+$/.test(icon);   
 }
 
 function isValidItem(item) {
@@ -62,8 +63,6 @@ function loadFromStorage(key, fallback) {
         const stored = localStorage.getItem(key);
         if (stored !== null) {
             const parsed = JSON.parse(stored);
-            // An empty array is a valid, intentional state (user deleted everything) —
-            // only restore defaults when storage is absent or the data is malformed.
             if (Array.isArray(parsed) && parsed.every(isValidItem)) return parsed;
         }
     } catch (e) {}
@@ -75,6 +74,7 @@ function saveToStorage(key, data) {
     catch (e) { showToast('Storage full. Please clear some items.', 'error'); }
 }
 
+// DOM REFS 
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => document.querySelectorAll(sel);
 
@@ -101,6 +101,7 @@ const deleteItemName = $('#deleteItemName');
 const dateTimeEl = $('#dateTime');
 const toastContainer = $('#toastContainer');
 
+// RENDERING 
 function renderAll() {
     renderTools();
     renderAI();
@@ -226,7 +227,7 @@ function lightenColor(hex, percent) {
     return `#${(1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1)}`;
 }
 
-// Drag & Drop (with FLIP animation for smooth reordering)
+// DRAG & DROP  
 const FLIP_TRANSITION = 'transform 0.28s cubic-bezier(0.22, 1, 0.36, 1)';
 let draggedItem = null;
 let draggedType = null;
@@ -252,7 +253,6 @@ function handleDragStart(e) {
     document.body.classList.add('is-dragging');
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/plain', this.dataset.id);
-    // Custom, slightly transparent drag preview
     const ghost = this.cloneNode(true);
     ghost.style.position = 'absolute';
     ghost.style.top = '-9999px';
@@ -262,13 +262,14 @@ function handleDragStart(e) {
     ghost.style.pointerEvents = 'none';
     document.body.appendChild(ghost);
     try { e.dataTransfer.setDragImage(ghost, ghost.offsetWidth / 2, ghost.offsetHeight / 2); }
-    catch (err) { /* some browsers reject setDragImage */ }
+    catch (err) {
+        //
+    }
     setTimeout(() => { if (ghost.parentNode) ghost.parentNode.removeChild(ghost); }, 0);
 }
 
 function handleDragEnd() {
     if (this) this.classList.remove('item-dragging');
-    // Clear leftover FLIP inline styles so hover/jiggle behave normally again.
     $$('.tool-item, .ai-item').forEach(c => {
         c.style.transition = '';
         c.style.transform = '';
@@ -292,21 +293,16 @@ function handleDragOver(e) {
     container.classList.add('grid-drag-over');
 
     const afterElement = getCardAfterCursor(container, e.clientX, e.clientY);
-
-    // Skip the DOM move when it would change nothing — prevents flicker on every mousemove.
     if (afterElement && afterElement.previousElementSibling === draggedItem) return;
     if (!afterElement && container.lastElementChild === draggedItem) return;
 
-    // Record FIRST positions of the cards about to shift (FLIP).
     const siblings = [...container.querySelectorAll('.tool-item:not(.item-dragging), .ai-item:not(.item-dragging)')];
     const firstPositions = new Map();
     siblings.forEach(c => firstPositions.set(c, c.getBoundingClientRect()));
 
-    // Perform the move.
     if (afterElement) container.insertBefore(draggedItem, afterElement);
     else container.appendChild(draggedItem);
 
-    // LAST + INVERT + PLAY: animate each shifted card back to its new slot.
     siblings.forEach(c => {
         const first = firstPositions.get(c);
         const last = c.getBoundingClientRect();
@@ -317,7 +313,6 @@ function handleDragOver(e) {
         c.style.transition = 'none';
         c.style.transform = `translate(${dx}px, ${dy}px)`;
         c.style.zIndex = '5';
-        // Force reflow so the INVERT transform commits before re-enabling the transition.
         void c.offsetWidth;
         c.style.transition = FLIP_TRANSITION;
         c.style.transform = '';
@@ -336,18 +331,13 @@ function handleDrop(e) {
     this.classList.remove('grid-drag-over');
 }
 
-// Returns the card before which the dragged item should be inserted (grid-aware),
-// or null when the cursor is past the last card (append to end).
 function getCardAfterCursor(container, x, y) {
     const cards = [...container.querySelectorAll('.tool-item:not(.item-dragging), .ai-item:not(.item-dragging)')];
     for (const card of cards) {
         const box = card.getBoundingClientRect();
         const midX = box.left + box.width / 2;
         const midY = box.top + box.height / 2;
-        // Cursor in the top half, or in the left half of this card's row band → insert before it.
-        if (y < midY || (y < box.bottom && x < midX)) {
-            return card;
-        }
+        if (y < midY || (y < box.bottom && x < midX)) return card;
     }
     return null;
 }
@@ -383,7 +373,7 @@ function extractOrderFromDOM(container, dataArray) {
     return ordered;
 }
 
-// Modals
+// ==================== MODALS ====================
 function openAddModal() {
     $('#modalName').value = '';
     $('#modalUrl').value = '';
@@ -448,7 +438,7 @@ function submitNewItem() {
     }, 200);
 }
 
-// Export / Import / Reset
+// EXPORT / IMPORT / RESET 
 function exportConfig() {
     const config = { tools: toolsData, ai: aiData, version: '3.0', exportedAt: new Date().toISOString() };
     const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
@@ -489,7 +479,7 @@ function resetToDefaults() {
     }
 }
 
-// Search
+// SEARCH 
 function performSearch() {
     const query = searchInput.value.trim();
     if (!query) { searchInput.focus(); return; }
@@ -524,6 +514,7 @@ function setSearchEngine(engine) {
     updateSearchPlaceholder();
 }
 
+// TOASTS 
 function showToast(message, type = 'info') {
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
@@ -533,10 +524,11 @@ function showToast(message, type = 'info') {
     setTimeout(() => { if (toast.parentNode) toast.remove(); }, 3000);
 }
 
+// UI UPDATES 
 function updateClearButtonVisibility() {
     const hasText = searchInput.value.trim().length > 0;
     clearSearchBtn.style.opacity = hasText ? '1' : '0.4';
-    clearSearchBtn.disabled = !hasText;
+    clearSearchBtn.disabled = !hasText;          // <-- added disable state
 }
 
 function updateDateTime() {
@@ -547,7 +539,7 @@ function updateDateTime() {
     });
 }
 
-// Event Listeners
+// EVENT LISTENERS 
 function setupEventListeners() {
     searchBtn.addEventListener('click', performSearch);
     luckyBtn.addEventListener('click', performLuckySearch);
@@ -602,7 +594,7 @@ function setupEventListeners() {
             e.preventDefault(); openAddModal();
             return;
         }
-        const ignoreTags = ['INPUT', 'TEXTAREA', 'SELECT'];
+        const ignoreTags = ['INPUT', 'TEXTAREA', 'SELECT'];   // <-- skip when focus is on form elements
         const isPrintable = e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey;
         if (isPrintable && document.activeElement !== searchInput &&
             !ignoreTags.includes(document.activeElement.tagName) &&
@@ -615,16 +607,14 @@ function setupEventListeners() {
     });
 }
 
+// SERVICE WORKER 
 function registerServiceWorker() {
     if (!('serviceWorker' in navigator)) return;
-    // Wait for load so registration never competes with first paint.
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('service-worker.js').then((reg) => {
-            // A new SW has taken control after an update -> tell the user.
             navigator.serviceWorker.addEventListener('controllerchange', () => {
                 showToast('Updated. Reload to apply changes.', 'info');
             });
-            // Prompt when a new version is waiting to activate.
             reg.addEventListener('updatefound', () => {
                 const newWorker = reg.installing;
                 if (!newWorker) return;
@@ -638,6 +628,7 @@ function registerServiceWorker() {
     });
 }
 
+//  INIT 
 function init() {
     setupEventListeners();
     renderAll();
